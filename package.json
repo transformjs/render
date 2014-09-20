@@ -10,7 +10,7 @@
   "devDependencies": {
     "istanbul": "0",
     "mocha": "1",
-    "regexhub": "^0.1.2",
+    "regexhub": "0",
     "should": "*"
   },
   "license": "MIT",
