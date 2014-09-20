@@ -36,6 +36,7 @@ describe('Pattern', function() {
 
     it('should return empty array if line dont match format', function() {
         pattern.apply('sample unmatch line').length.should.equal(0);
+        pattern.test('sample unmatch line').should.be.false;
     });
 
     it('should throw exception if context dont exist', function() {

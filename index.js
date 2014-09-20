@@ -21,8 +21,12 @@ function Pattern(pattern, rules, context) {
     this.regex = new RegExp(pattern);
 }
 
+Pattern.prototype.test = function(line) {
+    return this.regex.test(line);
+};
+
 Pattern.prototype.apply = function(line) {
-    if (this.regex.test(line)) {
+    if (this.test(line)) {
         return line.match(this.regex).slice(1).map(function(match, index) {
             var rule = this.rules[this.mapping[index]];
             switch (typeof rule) {
