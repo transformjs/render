@@ -6,7 +6,20 @@ You may also interested in [another log parser](https://gist.github.com/CatTail/
 
 ## Installation
 
+    npm install tran-log
+
+
 ## Usage
+
+    var log = require('tran-log');
+    var format = '^#{\\w+:type}$';
+    var rules = {
+        type: 'yellow'
+    };
+    var pattern = new log.Pattern(format, rules);
+    var groups = pattern.apply('This_word_will_be_yellow');
+    console.log(groups.join());
+
 
 ## License
 
