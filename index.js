@@ -54,10 +54,13 @@ Recognizer.prototype.add = function(format, rules, context) {
     this.patterns.push(new Pattern(format, rules, context));
 };
 
-Recognizer.prototype.apply = function(line) {
+Recognizer.prototype.apply = function(line, join) {
+    join = join || function(groups) {
+        return groups.join(' ');
+    };
     for (var i=0; i<this.patterns.length; i++) {
         if (this.patterns[i].test(line)) {
-            return this.patterns[i].apply(line);
+            return join(this.patterns[i].apply(line));
         }
     }
 };

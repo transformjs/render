@@ -52,9 +52,7 @@ describe('log', function() {
             var parser = createParser();
             parser.add('#{ERROR}');
             parser.add(format, rules, context);
-            var groups = parser.apply(line);
-            groups.join(' ').should.equal('ERROR');
-
+            parser.apply(line).should.equal('ERROR');
         });
     });
 });
