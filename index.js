@@ -63,6 +63,8 @@ Recognizer.prototype.apply = function(line, join) {
             return join(this.patterns[i].apply(line));
         }
     }
+    // fallback
+    return line;
 };
 
 module.exports = function createRecognizer() {

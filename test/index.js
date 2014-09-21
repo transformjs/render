@@ -54,5 +54,11 @@ describe('log', function() {
             parser.add(format, rules, context);
             parser.apply(line).should.equal('ERROR');
         });
+
+        it('should return original line if no format matches', function()  {
+            var parser = createParser();
+            parser.add('#{PREFIX}');
+            parser.apply(line).should.equal(line);
+        });
     });
 });
