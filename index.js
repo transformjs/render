@@ -1,15 +1,17 @@
 require('colors');
 
-var patternPattern = /#\{(.+?)(?::(\w+))?\}/g;
+var formatPattern = /#\{(.+?)(?::(\w+))?\}/g;
 
-function Pattern(pattern, rules, context) {
+function Pattern(format, rules, context) {
+    rules = rules || {};
+    context = context || {};
     var mapping = [];
-    pattern = pattern.replace(patternPattern, function(match, p, name) {
+    format = format.replace(formatPattern, function(match, p, name) {
         name = name || p.slice(1);
         mapping.push(name);
         if (p[0] === '$') {
             if (!context[p.slice(1)]) {
-                throw new Error("context don't have pattern " + p);
+                throw new Error("context don't have format " + p);
             }
             p = context[p.slice(1)];
         }
@@ -18,7 +20,7 @@ function Pattern(pattern, rules, context) {
 
     this.mapping = mapping;
     this.rules = rules;
-    this.regex = new RegExp(pattern);
+    this.regex = new RegExp(format);
 }
 
 Pattern.prototype.test = function(line) {
@@ -44,6 +46,24 @@ Pattern.prototype.apply = function(line) {
     }
 };
 
-module.exports = {
-    Pattern: Pattern
+function Recognizer() {
+    this.patterns = [];
+}
+
+Recognizer.prototype.add = function(format, rules, context) {
+    this.patterns.push(new Pattern(format, rules, context));
 };
+
+Recognizer.prototype.apply = function(line) {
+    for (var i=0; i<this.patterns.length; i++) {
+        if (this.patterns[i].test(line)) {
+            return this.patterns[i].apply(line);
+        }
+    }
+};
+
+module.exports = function createRecognizer() {
+    return new Recognizer();
+};
+
+module.exports.Pattern = Pattern;
