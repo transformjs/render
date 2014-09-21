@@ -2,7 +2,7 @@
   "name": "tran-log",
   "description": "Pretty print log file",
   "repository": "transformjs/log",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "keywords": [],
   "files": [
     "index.js"
