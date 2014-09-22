@@ -16,7 +16,6 @@ describe('log', function() {
     describe('Pattern', function() {
         var pattern = new createParser.Pattern(format, rules, context);
         var groups = pattern.apply(line);
-        debug(groups.join(' '));
 
         it('should parse format group mapping', function() {
             var mapping = ['type', 'date', 'time', 'ip', 'path', 'misc'];
