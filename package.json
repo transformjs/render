@@ -2,7 +2,7 @@
   "name": "tran-render",
   "description": "Text renderer",
   "repository": "transformjs/render",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "keywords": [],
   "files": [
     "index.js"
