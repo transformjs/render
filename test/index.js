@@ -39,6 +39,12 @@ describe('render', function() {
                 new createRenderer.Rule(format, actions, {});
             }).should.throw();
         });
+
+        it('should allow directly pattern replace', function()  {
+            var rule = new createRenderer.Rule('^\\w+', 'red', context);
+            var rendered = rule.apply(line);
+            rendered.indexOf('ERROR'.red).should.not.equal(-1);
+        });
     });
 
     describe('Renderer', function() {
