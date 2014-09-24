@@ -1,74 +1,95 @@
 require('colors');
+var debug = require('debug')('render:index');
 
-var formatPattern = /#\{(.+?)(?::(\w+))?\}/g;
+function Rule(format, actions, context) {
+    this.context = context || {};
+    this.actions = actions || {};
+    this.mapping = [];
 
-function Pattern(format, rules, context) {
-    rules = rules || {};
-    context = context || {};
-    var mapping = [];
-    format = format.replace(formatPattern, function(match, p, name) {
-        name = name || p.slice(1);
-        mapping.push(name);
-        if (p[0] === '$') {
-            if (!context[p.slice(1)]) {
-                throw new Error("context don't have format " + p);
-            }
-            p = context[p.slice(1)];
-        }
-        return '(' + p + ')';
-    });
+    var formatPattern = /#\{(.+?)(?::(\w+))?\}/g;
+    var match, pattern = '', lastIndex = 0;
 
-    this.mapping = mapping;
-    this.rules = rules;
-    this.regex = new RegExp(format);
+    while (match = formatPattern.exec(format)) {
+        this.mapping.push(match[2] || match[1].slice(1));
+        pattern += this._wrap(format.slice(lastIndex, match.index));
+        pattern += this._wrap(this._replace(match[1]));
+        lastIndex = match.index + match[0].length;
+    }
+    pattern += this._wrap(format.slice(lastIndex));
+    debug('pattern', pattern);
+
+    this.regex = new RegExp(pattern);
 }
 
-Pattern.prototype.test = function(line) {
+Rule.prototype._wrap = function(pattern) {
+    return '(' + pattern + ')';
+};
+
+Rule.prototype._replace = function(pattern) {
+    if (pattern[0] === '$') {
+        if (!this.context[pattern.slice(1)]) {
+            throw new Error("context don't have format " + pattern);
+        }
+        pattern = this.context[pattern.slice(1)];
+    }
+    return pattern;
+};
+
+Rule.prototype._render = function(text, action) {
+    action = this.actions[action];
+    switch (typeof action) {
+        case 'string':
+            return text[action];
+        case 'function':
+            return action(text);
+        case 'undefined':
+        default:
+            return text;
+    }
+};
+
+Rule.prototype.test = function(line) {
     return this.regex.test(line);
 };
 
-Pattern.prototype.apply = function(line) {
-    if (this.test(line)) {
-        return line.match(this.regex).slice(1).map(function(match, index) {
-            var rule = this.rules[this.mapping[index]];
-            switch (typeof rule) {
-                case 'string':
-                    return match[rule];
-                case 'function':
-                    return rule(match);
-                case 'undefined':
-                    default:
-                    return match;
+Rule.prototype.apply = function(line) {
+    var self = this;
+    return line.replace(self.regex, function() {
+        var groups = [].slice.call(arguments, 1, -2);
+        groups = groups.map(function(group, index) {
+            if (index % 2) {
+                return self._render(group, self.mapping[(index - 1) / 2]);
+            } else {
+                return group;
             }
-        }, this);
-    } else {
-        return [];
-    }
+        }, self);
+        debug('groups', groups);
+        return groups.join('');
+    });
 };
 
-function Recognizer() {
-    this.patterns = [];
+function Renderer(context) {
+    this.rules = [];
+    this.context = context || {};
 }
 
-Recognizer.prototype.add = function(format, rules, context) {
-    this.patterns.push(new Pattern(format, rules, context));
+Renderer.prototype.add = function(format, actions, context) {
+    debug('add rule', format, actions);
+    this.rules.push(new Rule(format, actions, context || this.context));
 };
 
-Recognizer.prototype.apply = function(line, join) {
-    join = join || function(groups) {
-        return groups.join(' ');
-    };
-    for (var i=0; i<this.patterns.length; i++) {
-        if (this.patterns[i].test(line)) {
-            return join(this.patterns[i].apply(line));
+Renderer.prototype.apply = function(line) {
+    this.rules.forEach(function(rule) {
+        if (rule.test(line)) {
+            line = rule.apply(line);
         }
-    }
-    // fallback
+    });
+    debug('rendered', line);
     return line;
 };
 
-module.exports = function createRecognizer() {
-    return new Recognizer();
+module.exports = function createRenderer(context) {
+    return new Renderer(context);
 };
 
-module.exports.Pattern = Pattern;
+module.exports.Rule = Rule;
