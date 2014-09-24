@@ -6,11 +6,16 @@ function Rule(format, actions, context) {
     this.actions = actions || {};
     this.mapping = [];
 
+    if (typeof this.actions !== 'object') {
+        this.actions = {default: this.actions};
+    }
+
     var formatPattern = /#\{(.+?)(?::(\w+))?\}/g;
-    var match, pattern = '', lastIndex = 0;
+    var match, name, pattern = '', lastIndex = 0;
 
     while (match = formatPattern.exec(format)) {
-        this.mapping.push(match[2] || match[1].slice(1));
+        name = match[2] || (match[1][0] === '$' ? match[1].slice(1) : 'default');
+        this.mapping.push(name);
         pattern += this._wrap(format.slice(lastIndex, match.index));
         pattern += this._wrap(this._replace(match[1]));
         lastIndex = match.index + match[0].length;

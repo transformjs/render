@@ -63,5 +63,24 @@ describe('render', function() {
             renderer.add('#{PREFIX}');
             renderer.apply(line).should.equal(line);
         });
+
+        it('should allow default action render', function() {
+            var renderer1 = createRenderer(context);
+            renderer1.add('^#{\\w+}', {default: 'blue'});
+            var rendered = renderer1.apply(line);
+            rendered.indexOf('ERROR'.blue).should.not.equal(-1);
+
+            var renderer2 = createRenderer(context);
+            renderer2.add('^#{\\w+}', 'yellow');
+            var rendered = renderer2.apply(line);
+            rendered.indexOf('ERROR'.yellow).should.not.equal(-1);
+        });
+
+        it('should allow directly pattern render', function() {
+            var renderer = createRenderer(context);
+            renderer.add('#{$date:date}', {date: 'blue'});
+            var rendered = renderer.apply(line);
+            rendered.indexOf('2014-09-20'.blue).should.not.equal(-1);
+        });
     });
 });

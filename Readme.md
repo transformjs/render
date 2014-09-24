@@ -10,11 +10,8 @@
 ## Usage
 
     var createRenderer = require('tran-render');
-    var format = '^#{\\w+:type}$';
-    var actions = {
-        type: 'yellow'
-    };
-    var renderer = createRenderer(format, actions);
+    var format = '#{\\w+}';
+    var renderer = createRenderer(format, 'yellow');
     console.log(renderer.apply('This_word_will_be_yellow'));
 
 
