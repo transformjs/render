@@ -9,9 +9,8 @@
 
 ## Usage
 
-    var createRenderer = require('tran-render');
-    var format = '#{\\w+}';
-    var renderer = createRenderer(format, 'yellow');
+    var renderer = require('tran-render')();
+    renderer.add('#{\\w+}', 'yellow');
     console.log(renderer.apply('This_word_will_be_yellow'));
 
 
